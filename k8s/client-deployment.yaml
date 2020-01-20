@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+spec:
+  #replica is the number of pods that this deployment is suppose to create
+  replicas: 3
+  selector:
+  #which pod needs to be replicated? any pod with label `component:web`
+    matchLabels:
+      component: web
+  template:
+  #configuration of the pods that will be created
+    metadata:
+      labels:
+        component: web
+    spec:
+      containers:
+         #name of the pod object
+        - name: client
+          image: stephengrider/multi-client
+          ports:
+            - containerPort: 3000

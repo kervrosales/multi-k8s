@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  #replica is the number of pods that this deployment is suppose to create
+  replicas: 1
+  selector:
+  #which pod needs to be replicated? any pod with label `component:web`
+    matchLabels:
+      component: postgres
+  template:
+  #configuration of the pods that will be created
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: database-persistent-volume-claim
+      containers:
+         #name of the pod object
+        - name: postgres
+          image: postgres
+          ports:
+          #default port for postgres is 5432
+            - containerPort: 5432
+          # volume name should match a volume mount
+          # k8s looks for a storage that matches the volume mount name
+          # data directory of postgres in the storage = mountPath
+          # subpath  for this example is specific to postgres
+          # we save the data in subpath
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postresql/data
+              # find the storage 
+              subPath: postgres
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD
+

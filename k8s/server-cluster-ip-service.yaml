@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-cluster-ip-service
+spec:
+#clusterIP is a subtype of service
+#ClusterIP is not accessible from the outside world
+  type: ClusterIP
+  selector:
+    component: server
+  ports:
+  #port - how the other pod/cotainers communicate to this pod
+    - port: 5000
+    #targetPort  is the same as the container port in the pod yaml
+    #redirect to a pod with port5000 
+      targetPort: 5000

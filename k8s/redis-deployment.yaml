@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  #replica is the number of pods that this deployment is suppose to create
+  replicas: 1
+  selector:
+  #which pod needs to be replicated? any pod with label `component:web`
+    matchLabels:
+      component: redis
+  template:
+  #configuration of the pods that will be created
+    metadata:
+      labels:
+        component: redis
+    spec:
+      containers:
+         #name of the pod object
+        - name: redis
+          image: redis
+          ports:
+            #default port for redis is 6379
+            - containerPort: 6379
