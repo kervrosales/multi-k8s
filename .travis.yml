@@ -2,10 +2,39 @@
 sudo: require
 services:
   - docker
-#this is install goole cloud sdk
+env:
+    global:
+      - SHA=$(git rev-parse HEAD)
+      - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+# install goole cloud sdk
+# configure SDK with Google Cloud auth info
+
+# Build Test version of multi-client
+# Run Tests
+# If tests passes, run deploy 
+# Build all images, tage each one, push to docker hub
+# Apply all configs in 'k8s folder'
+# Imperatively set latest images on each deployment
 before_install:
   - openssl aes-256-cbc -K $encrypted_0c35eebf403c_key -iv $encrypted_0c35eebf403c_iv -in service-account.json.enc -out service-account.json -d
   - curl https://sdk.cloud.google.com | bash > / dev/null;
   - source $HOME/google-cloud-sdk/path/bash.inc
   - gcloud components update kubectl
   - gcloud auth activate-service-account ---key-file service-account.json
+  - gcloud config set project multi-k8s-265722
+  - gcloud config set compute/zone us-central1-a
+  - gcloud container clusters get-credentials multi-k8s 
+  # Login to Docker. tell travis that the login will be from stdin
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t prokervify/react-test -f ./client/Dockerfile.dev
+
+  script:
+  # --coverage 
+   - docker run prokervify/react-test npm test -- --coverage
+
+  deploy:
+  #tell travis not to worry about our deployment, just run our script
+    provider: script
+    script: bash ./deploy.sh
+    on:
+      branch: master
