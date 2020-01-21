@@ -13,12 +13,12 @@ before_install:
   - gcloud auth activate-service-account --key-file service-account.json
   - gcloud config set project multi-k8s-265722
   - gcloud config set compute/zone us-central1-a
-  - gcloud container clusters get-credentials multi-k8s-cluster	
+  - gcloud container clusters get-credentials multi-k8s-cluster
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t kerv102/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run kerv102/react-test npm test -- --coverage
+  - docker run - CI=true kerv102/react-test npm test -- --coverage
 
 deploy:
   provider: script
